@@ -51,11 +51,18 @@ def main():
 	
 	"""Main code for gesture recognition
 
-	After receiving the "play" command, displays a 8x8 grid as the workspace to select a play destination.
-	Publishes the selected coordinates
+	After receiving the "play" command, displays a 16x16 grid as the environment to 
+        select a play destination. Publishes the selected coordinates
+	
+	Subscribers
+	----------
+	sub: subscriber (std_msgs.String) to /gesture_request
+		reads when the play command arrives
 
-	subscribe: /gesture_request (std_msgs.String)
-	publish: /move_coords (geometry_msgs.Point)
+	Publishers
+	----------
+	pub: publisher (geometry_msgs.Point) to /ball_coords
+		publishes the ball selected desired coordinates
 	"""
 	rospy.init_node('play_coords')
 
@@ -65,6 +72,7 @@ def main():
 
 	# Initialiizations
 	global cb_msg
+
 	play_coord = Point(x = 0, y = 0, z = 0)
 
 	rate = rospy.Rate(10) # 10hz
@@ -94,7 +102,7 @@ def main():
 			x = 0
 			y = 0
 			z = -2
-			# Publish coordinates
+			# Publish coordinates to hide ball
 			play_coord = Point(x = x, y = y, z = z)
 			pub.publish(play_coord)
 

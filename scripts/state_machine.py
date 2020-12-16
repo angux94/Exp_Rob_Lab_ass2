@@ -19,27 +19,44 @@ class Normal(smach.State):
     """ Class for the NORMAL state
 
     Robot walks randomly for a random amount of times.
-    If "play" command is received, goes to PLAY state.
-    If no command is received, goes to sleep.
+    If "play" command is received, ball appears and robot goes to PLAY state.
+    If no command is received, eventually goes to SLEEP.
+
+    State Machine
+    ----------
+    NORMAL('play') -> PLAY (if play command received)
+    NORMAL('sleep') -> SLEEP (if no command received)
+
+    Parameters
+    ----------
+    normal_times: (int) Number of random walks to do
 
     Attributes
     ----------
-    normal_counter: int
-    pub: publisher (geometry_msgs.Point) to /move_coords
+    normal_counter: (int)
+    coords: (motion_plan.msg.PlanningGoal)
+
+    Subscribers
+    ----------
     sub_command: subscriber (std_msgs.String) to /command
-    sub_flag: subscriber (std_msgs.Bool) to /arrived
+	subscribe to get the play command to enter the PLAY state
+
+    Actions
+    ----------
+    act_c: Client for action /move_goal
+	calls the action to move the robot to the specified coordinates
+	
+	goal: geometry_msgs.PoseStamped
+	result: geometry_msgs.Pose
+	
     """
     def __init__(self):
         smach.State.__init__(self, outcomes=['play','sleep'])
                
-
-
         #Publishers and subscribers
-        self.pub = rospy.Publisher('/move_coords', Point, queue_size=10)
         self.sub_command = rospy.Subscriber('/command', String, cb_command)
-        self.sub_flag = rospy.Subscriber('/arrived', Bool, cb_flag)
 
-
+	#Actions
 	self.act_c = actionlib.SimpleActionClient('/move_goal', motion_plan.msg.PlanningAction)
 	
 	rospy.loginfo('Waiting for action server to start')
@@ -52,7 +69,7 @@ class Normal(smach.State):
 
     def execute(self, userdata):
 
-        global sm_command, sm_flag
+        global sm_command
 
         # Restart the counter every time
         self.normal_counter = 1
@@ -137,26 +154,35 @@ class Normal(smach.State):
 class Sleep(smach.State):
     """ Class for the SLEEP state
 
-    The robot goes to the sleep coordinate, stays there for a while, then wakes up and goes to NORMAL state
+    The robot goes to the sleep coordinate, stays there for a while, then wakes up and goes into NORMAL state
+
+    State Machine
+    ----------
+    SLEEP('wait') -> NORMAL (after time passes)
 
     Parameters
     ----------
-    sleep_x: (int) Sleep x coordinate (-8-8)
-    sleep_y: (int) Sleep y coordinate (-8-8)
-    time_sleep: (int) Sleeping time (1-10)
+    sleep_x: (double) Sleep x coordinate (-8,8)
+    sleep_y: (double) Sleep y coordinate (-8,8)
+    time_sleep: (int) Sleeping time (1,10)
 
     Attributes
     ----------
-    pub: publisher (geometry_msgs.Point) to /move_coords
-    sub_flag: subscriber (std_msgs.Bool) to /arrived
+    coords: (motion_plan.msg.PlanningGoal)
+
+    Actions
+    ----------
+    act_c: Client for action /move_goal
+	calls the action to move the robot to the specified coordinates
+
+	goal: geometry_msgs.PoseStamped
+	result: geometry_msgs.Pose
+
     """
     def __init__(self):
         smach.State.__init__(self, outcomes=['wait'])      
 
-        #Publishers and subscribers
-        self.pub = rospy.Publisher('move_coords', Point, queue_size=10)
-        self.sub_flag = rospy.Subscriber('arrived', Bool, cb_flag)
-
+	#Actions
 	self.act_c = actionlib.SimpleActionClient('/move_goal', motion_plan.msg.PlanningAction)
 
 	rospy.loginfo('Waiting for action server to start')
@@ -169,8 +195,6 @@ class Sleep(smach.State):
     def execute(self, userdata):
         time.sleep(1)
         rospy.loginfo('Executing state SLEEP')
-
-        global sm_flag
 
         # Coordinates of the sleep position
         sleep_x = rospy.get_param('~sleep_x', 7)
@@ -207,33 +231,38 @@ class Sleep(smach.State):
 class Play(smach.State):
     """ Class for the PLAY state
 
-    Robot plays for a random amount of times.
-    Each time goes towards the man and waits for a gesture, then goes towards the indicated coords and repeats.
-    When it finishes playing goes to NORMAL state.
+    Robot plays for as long as the ball is in the environment, the ball enters when the 'play' 
+    command is received and the coordinates are given. Ball disapears once the command 'stop'
+    arrives, which sends the ball out of the environment.
 
-    Parameters
+    State Machine
     ----------
-    man_x: (int) Man x coordinate (0-1000)
-    man_y: (int) Man y coordinate (0-1000)
-    play_times: (int) Amount of times to play (1-5)
-
+    PLAY('stop') -> NORMAL (if stop command is received)
 
     Attributes
     ----------
     play_counter: int
+
+    Publishers
+    ----------
     pub_command: publisher (std_msgs.String) to /gesture_request
-    pub_coords: publisher (geometry_msgs.Point) to /move_coords
-    sub_flag: subscriber (std_msgs.Bool) to /arrived
+	publishes the request to enter ball desired coordinates
+    
+    Subscribers
+    ----------
+    sub_flag: subscriber (std_msgs.Bool) to /arrived_play
+	checks if the robot reached the ball
+    sub_command: subscriber (std_msgs.String) to /command
+	subscribe to get the stop command to exit the PLAY state
     """
     def __init__(self):
-        smach.State.__init__(self, outcomes=['wait'])
+        smach.State.__init__(self, outcomes=['stop'])
 
         # Initialization
         self.play_counter = 1
 
         #Publishers and subscribers
         self.pub_command = rospy.Publisher('/gesture_request', String, queue_size=10)
-        self.pub_coords = rospy.Publisher('/move_coords', Point, queue_size=10)
 	
 	self.sub_command = rospy.Subscriber('/command', String, cb_command)
         self.sub_flag = rospy.Subscriber('/arrived_play', Bool, cb_flag)
@@ -243,7 +272,11 @@ class Play(smach.State):
 	global sm_flag
         time.sleep(1)
         rospy.loginfo('Executing state PLAY')
+
+	#Gets first play coordinates
 	self.pub_command.publish("play")
+
+	#We make sure we haven't arrived to the play destination
 	sm_flag = False
         while not rospy.is_shutdown():       
                 
@@ -256,7 +289,7 @@ class Play(smach.State):
 			self.pub_command.publish("stop")
 			print("Ball dissapeared!")
 			time.sleep(10)
-			return 'wait'
+			return 'stop'
 
     
 
@@ -265,11 +298,15 @@ sm_command = None
 sm_flag = None
 
 def cb_command(data):
+    """ callback to get the command received on the terminal
+    """
     global sm_command
     sm_command = data.data
 
 
 def cb_flag(data):
+    """ callback to set the arrived flag
+    """
     global sm_flag
     sm_flag = data.data
 
@@ -277,11 +314,24 @@ def cb_flag(data):
 
 # main
 def main():
-    ''' State machine initialization
+    """ State machine initialization
 
     Creates the state machine, add states and link their outputs.
 
-    '''
+    States
+    ----------
+    NORMAL | PLAY | SLEEP
+    
+    Transitions
+    ----------
+    NORMAL -> PLAY
+    NORMAL -> SLEEP
+
+    PLAY -> NORMAL
+
+    SLEEP -> NORMAL
+
+    """
     global sm_command, sm_flag
 
     rospy.init_node('state_machine')
@@ -302,7 +352,7 @@ def main():
                                transitions={'wait':'NORMAL'})
 
         smach.StateMachine.add('PLAY', Play(), 
-                               transitions={'wait':'NORMAL'})
+                               transitions={'stop':'NORMAL'})
 
     # Create and start the introspection server for visualization
     sis = smach_ros.IntrospectionServer('server_name', sm, '/SM_ROOT')

@@ -41,6 +41,8 @@ act_s = None
 
 
 def clbk_odom(msg):
+    """ Gets the robot odometry data
+    """
     global position_
     global pose_
     global yaw_
@@ -60,18 +62,26 @@ def clbk_odom(msg):
 
 
 def change_state(state):
+    """ Changes the global variable to the corresponding state
+    """
     global state_
     state_ = state
     #print ('State changed to [%s]' % state_)
 
 
 def normalize_angle(angle):
+    """ Normalizes the angle so it remains between -pi and pi
+    """
     if(math.fabs(angle) > math.pi):
         angle = angle - (2 * math.pi * angle) / (math.fabs(angle))
     return angle
 
 
 def fix_yaw(des_pos):
+    """ Fixes the yaw of the robot to align it with the goal
+
+    Once algined, changes to state 1
+    """
     global yaw_, pub, yaw_precision_2_, state_
     desired_yaw = math.atan2(des_pos.y - position_.y, des_pos.x - position_.x)
     err_yaw = normalize_angle(desired_yaw - yaw_)
@@ -94,6 +104,14 @@ def fix_yaw(des_pos):
 
 
 def go_straight_ahead(des_pos):
+    """ Moves the robot forward
+
+    Computes the distance to the goal, and moves the coordinate accordingly.
+    Limits the velocity if needed, and checks for the yaw error.
+
+    Once it arrives changes to state 2
+    If yaw error increases changes to state 0
+    """
     global yaw_, pub, yaw_precision_, state_
     desired_yaw = math.atan2(des_pos.y - position_.y, des_pos.x - position_.x)
     err_yaw = desired_yaw - yaw_
@@ -116,10 +134,12 @@ def go_straight_ahead(des_pos):
 
     # state change conditions
     if math.fabs(err_yaw) > yaw_precision_:
-        print ('Yaw error: [%s]' % err_yaw)
+        #print ('Yaw error: [%s]' % err_yaw)
         change_state(0)
 
 def done():
+    """ Stops moving the robot once it reaches the target
+    """
     twist_msg = Twist()
     twist_msg.linear.x = 0
     twist_msg.angular.z = 0
@@ -127,10 +147,23 @@ def done():
 
 
 def planning(goal):
+    """ Movement planning State Machine
+
+    Gets the xy coordinates and changes through the states to take the robot towards the goal.
+
+    States
+    ----------
+    0: The robot turns to align itself with the desired point
+    1: Once it's aligned, the robot moves forward, checking that the yaw error remains into acceptable ranges
+    2: Robot arrived, stop moving
+
+
+    """
 
     global state_, desired_position_
     global act_s
 
+    #Get the coordinates from the input
     desired_position_.x = goal.target_pose.pose.position.x
     desired_position_.y = goal.target_pose.pose.position.y
 
@@ -173,13 +206,37 @@ def planning(goal):
 
 
 def main():
+    """ Main function
+
+    Stablishes the publishers, subscribers and actions used in the node
+
+    Publishers
+    ----------
+    pub: publishes (geometry_msgs.Twist) to /robot/cmd_vel
+	publishes to control the robot velocities
+
+    Subscribers
+    ----------
+    sub_odom: subscribes (nav_msgs.Odometry) to /robot/odom
+	subscribes to check the robot position in the environment
+
+    Actions
+    ----------
+    act_s: server of action /move_goal
+	goal: geometry_msgs.PoseStamped
+	result: geometry_msgs.Pose
+    """
     global pub, active_, act_s
     rospy.init_node('move_robot_server')
-    pub = rospy.Publisher('/robot/cmd_vel', Twist, queue_size=1)
 
+    #Publishers and subscribers
+    pub = rospy.Publisher('/robot/cmd_vel', Twist, queue_size=1)
     sub_odom = rospy.Subscriber('/robot/odom', Odometry, clbk_odom)
+    
+    #Actions
     act_s = actionlib.SimpleActionServer(
         '/move_goal', motion_plan.msg.PlanningAction, planning, auto_start=False)
+    
     act_s.start()
 
     rate = rospy.Rate(20)

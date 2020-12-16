@@ -36,7 +36,18 @@ def go_to_coords(des_coords):
 	act_c.wait_for_result()
 
 def main():
-	#global pub, active_, act_s
+	""" Defines the subscribers and actions used
+
+	Subscribers
+	----------
+	sub_coords: subscribes (geometry_msgs.Point)to /move_coords
+		gets the coordinates to be sent to the action
+
+	Actions
+	----------
+	act_c: Client for action /move_goal
+		calls the action to move the robot to the specified coordinates
+	"""
 	rospy.init_node('move_robot_client')
 	sub_coords = rospy.Subscriber('/move_coords', Point, cb_move)
 	act_c = actionlib.SimpleActionClient('/move_goal', motion_plan.msg.PlanningAction)

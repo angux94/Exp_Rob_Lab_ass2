@@ -80,6 +80,11 @@
   </node>
 
   <node name="state_machine" pkg="exp_assignment2" type="state_machine.py" output="screen" />
+  <!--param name="normal_times" type="int" value="3" /-->
+  <param name="sleep_x" type="double" value="7" />
+  <param name="sleep_y" type="double" value="1" />
+  <param name="time_sleep" type="int" value="10" />
+  
   <node name="move_robot_server" pkg="exp_assignment2" type="move_robot_server.py" output="screen" />
   <node name="command_request" pkg="exp_assignment2" type="command_request.py" output="screen" />
   <node name="play_coords" pkg="exp_assignment2" type="play_coords.py" output="screen" />
