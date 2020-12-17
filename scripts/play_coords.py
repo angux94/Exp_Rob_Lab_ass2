@@ -10,7 +10,9 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Point, Pose
 import numpy as np
 import matplotlib.pyplot as plt
-
+import actionlib
+import actionlib.msg
+import motion_plan.msg
 
 
 
@@ -19,7 +21,7 @@ cb_msg = None
 
 
 def coord_select():
-	"""Function to display a grid and select the destination point
+	"""Function to display the grid and select the destination point
 
 	Returns
 	---------
@@ -52,27 +54,37 @@ def main():
 	"""Main code for gesture recognition
 
 	After receiving the "play" command, displays a 16x16 grid as the environment to 
-        select a play destination. Publishes the selected coordinates
+        select a play destination to where the ball will go. Publishes the selected coordinates
 	
 	Subscribers
 	----------
 	sub: subscriber (std_msgs.String) to /gesture_request
 		reads when the play command arrives
 
-	Publishers
+	Actions
 	----------
-	pub: publisher (geometry_msgs.Point) to /ball_coords
-		publishes the ball selected desired coordinates
+	act_c: Client for action /reaching_goal
+		calls the action to move the ball to the specified coordinates
+	
+		goal: geometry_msgs.PoseStamped
+		result: geometry_msgs.Pose
 	"""
 	rospy.init_node('play_coords')
 
 	# Publishers and Subscribers
-	pub = rospy.Publisher('/ball_coords', Point, queue_size=10)
 	sub = rospy.Subscriber('/gesture_request', String, callback)
+
+	#Actions
+	act_c = actionlib.SimpleActionClient('/reaching_goal', motion_plan.msg.PlanningAction)
+	
+	#rospy.loginfo('Waiting for action server to start')
+	act_c.wait_for_server()
+	#rospy.loginfo('Server started')
 
 	# Initialiizations
 	global cb_msg
 
+	goal = motion_plan.msg.PlanningGoal()
 	play_coord = Point(x = 0, y = 0, z = 0)
 
 	rate = rospy.Rate(10) # 10hz
@@ -92,9 +104,16 @@ def main():
 			y = xy[0][1]
 			z = 0.5
 
-			# Publish coordinates
-			play_coord = Point(x = x, y = y, z = z)
-			pub.publish(play_coord)
+			# Publish coordinates onto the action
+			goal.target_pose.pose.position.x = x
+			goal.target_pose.pose.position.y = y
+			goal.target_pose.pose.position.z = z
+			
+			act_c.send_goal(goal)
+			print('Ball to: ' + str(goal.target_pose.pose.position.x) + ', ' + str(goal.target_pose.pose.position.y)+ ', ' + str(goal.target_pose.pose.position.z))
+
+			# Waits for the server to finish performing the action.
+			act_c.wait_for_result()
 
 		if(cb_msg == "stop"):
 			# Clean variable
@@ -102,9 +121,17 @@ def main():
 			x = 0
 			y = 0
 			z = -2
-			# Publish coordinates to hide ball
-			play_coord = Point(x = x, y = y, z = z)
-			pub.publish(play_coord)
+			
+			# Publish coordinates to hide ball onto the action
+			goal.target_pose.pose.position.x = x
+			goal.target_pose.pose.position.y = y
+			goal.target_pose.pose.position.z = z
+
+			act_c.send_goal(goal)
+			print('(Ball sent to: ' + str(goal.target_pose.pose.position.x) + ', ' + str(goal.target_pose.pose.position.y)+ ', ' + str(goal.target_pose.pose.position.z) + ')')
+
+			# Waits for the server to finish performing the action.
+			act_c.wait_for_result()
 
 			
 		rate.sleep()

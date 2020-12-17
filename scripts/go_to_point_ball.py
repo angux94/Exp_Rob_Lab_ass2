@@ -41,6 +41,8 @@ act_s = None
 
 
 def clbk_odom(msg):
+    """ Gets the ball odometry data
+    """
     global position_
     global pose_
     global yaw_
@@ -51,12 +53,21 @@ def clbk_odom(msg):
 
 
 def change_state(state):
+    """ Changes the global variable to the corresponding state
+    """
     global state_
     state_ = state
-    print ('State changed to [%s]' % state_)
+    #print ('State changed to [%s]' % state_)
 
 
 def go_straight_ahead(des_pos):
+    """ Moves the ball towards the specified coordinates
+
+    Computes the distance to the goal, and moves the ball accordingly.
+    Limits the velocity if needed, and checks for the yaw error.
+
+    Once it arrives changes to state 1
+    """
     global pub, state_, z_back
     err_pos = math.sqrt(pow(des_pos.y - position_.y, 2) +
                         pow(des_pos.x - position_.x, 2))
@@ -87,11 +98,13 @@ def go_straight_ahead(des_pos):
         pub.publish(twist_msg)
 
     else:
-        print ('Position error: [%s]' % err_pos)
+        #print ('Position error: [%s]' % err_pos)
         change_state(1)
 
 
 def done():
+    """ Stops moving the ball once it reaches the target
+    """
     twist_msg = Twist()
     twist_msg.linear.x = 0
     twist_msg.linear.y = 0
@@ -99,7 +112,16 @@ def done():
 
 
 def planning(goal):
+    """ Movement planning State Machine
 
+    Gets the desired xy coordinates and changes through the states to take the ball towards the goal.
+
+    States
+    ----------
+    0: The ball is going towards the goal
+    1: Ball arrived, stops moving
+
+    """
     global state_, desired_position_
     global act_s
 
@@ -136,16 +158,46 @@ def planning(goal):
 
         rate.sleep()
     if success:
-        rospy.loginfo('Goal: Succeeded!')
+        #rospy.loginfo('Goal: Succeeded!')
         act_s.set_succeeded(result)
 
 
 def main():
+    """ Main function
+
+    Stablishes the publishers, subscribers and actions used in the node
+
+    Publishers
+    ----------
+    pub: publishes (geometry_msgs.Twist) to cmd_vel of the ball (using namespace from the launch file)
+	publishes to control the ball velocities
+    pubz: publishes (gazebo_msgs.LinkState)to /gazebo/set_link_state
+	(gazebo_msgs.LinkState sets pose and twist of a limb):
+		string link_name (name of the link)
+		grometry_msgs.Pose Pose (desired pose on the ref frame)
+		grometry_msgs.Twist Twist (desired twist on the ref frame)
+		string reference_frame (set pose/twist relative to the specified frame)
+
+    Subscribers
+    ----------
+    sub_odom: subscribes (nav_msgs.Odometry) to odom of the ball (using namespace from the launch file)
+	subscribes to check the ball position in the environment
+
+    Actions
+    ----------
+    act_s: server of action /reaching_goal
+	goal: geometry_msgs.PoseStamped
+	result: geometry_msgs.Pose
+    """
     global pub, active_, act_s, pubz
     rospy.init_node('go_to_point')
+
+    #Publishers and subscribres
     pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
     pubz = rospy.Publisher('/gazebo/set_link_state', LinkState, queue_size=1)
     sub_odom = rospy.Subscriber('odom', Odometry, clbk_odom)
+    
+    #Actions
     act_s = actionlib.SimpleActionServer(
         '/reaching_goal', exp_assignment2.msg.PlanningAction, planning, auto_start=False)
     act_s.start()

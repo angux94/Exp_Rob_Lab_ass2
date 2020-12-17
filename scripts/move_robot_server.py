@@ -106,7 +106,7 @@ def fix_yaw(des_pos):
 def go_straight_ahead(des_pos):
     """ Moves the robot forward
 
-    Computes the distance to the goal, and moves the coordinate accordingly.
+    Computes the distance to the goal, and moves the robot to the coordinate accordingly.
     Limits the velocity if needed, and checks for the yaw error.
 
     Once it arrives changes to state 2
@@ -157,7 +157,6 @@ def planning(goal):
     1: Once it's aligned, the robot moves forward, checking that the yaw error remains into acceptable ranges
     2: Robot arrived, stop moving
 
-
     """
 
     global state_, desired_position_
@@ -201,7 +200,7 @@ def planning(goal):
 
         rate.sleep()
     if success:
-        rospy.loginfo('Goal: Succeeded!')
+        print('Goal: Succeeded!')
         act_s.set_succeeded(result)
 
 

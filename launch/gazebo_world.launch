@@ -79,6 +79,8 @@
         --shutdown-timeout 3">
   </node>
 
+  <!-- Node included after to set up the assignment -->
+
   <node name="state_machine" pkg="exp_assignment2" type="state_machine.py" output="screen" />
   <!--param name="normal_times" type="int" value="3" /-->
   <param name="sleep_x" type="double" value="7" />
@@ -88,7 +90,7 @@
   <node name="move_robot_server" pkg="exp_assignment2" type="move_robot_server.py" output="screen" />
   <node name="command_request" pkg="exp_assignment2" type="command_request.py" output="screen" />
   <node name="play_coords" pkg="exp_assignment2" type="play_coords.py" output="screen" />
-  <node name="move_ball_client" pkg="exp_assignment2" type="move_ball_client.py" output="screen" />
   <node name="camera_control" pkg="exp_assignment2" type="camera_ball.py" output="screen" />
+  <param name="wait_time" type="double" value="5" />
 
 </launch>

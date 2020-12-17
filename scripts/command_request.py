@@ -15,12 +15,15 @@ import matplotlib.pyplot as plt
 def main():
 	"""Main code for command recognition
 
-	Waits for the user to input a command for the program
+	Expects for the user to write the command 'play' or 'stop' to 
 
-	subscribe: None
-	publish: /command (std_msgs.String)
+	'play' will ask for coordinates in order to make the ball appear in the environment
+	'stop' will make the ball dissapear of the environment
 
-	Valid comands: Play, PLAY, play
+	Publishers
+	----------
+	pub: publishes (std_msgs.String) to /command 
+
 	"""
 	rospy.init_node('command_request')
 
@@ -32,13 +35,12 @@ def main():
 	while not rospy.is_shutdown():
 
 		# Get command from user
-		txt = raw_input("Write play or stop to put the ball in the environment: \n")
+		txt = raw_input("Write play or stop to put or hide the ball in the environment: \n")
 		if(txt == "Play" or txt == "play" or txt == "PLAY"):
 			txt = "play"
 			pub.publish(txt)
 		
 		elif(txt == "Stop" or txt == "stop" or txt == "STOP"):
-			print("Ball disappears!")
 			txt = "stop"
 			pub.publish(txt)
 		# Code for invalid comand and retry

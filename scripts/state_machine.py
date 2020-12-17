@@ -59,9 +59,9 @@ class Normal(smach.State):
 	#Actions
 	self.act_c = actionlib.SimpleActionClient('/move_goal', motion_plan.msg.PlanningAction)
 	
-	rospy.loginfo('Waiting for action server to start')
+	#rospy.loginfo('Waiting for action server to start')
 	self.act_c.wait_for_server()
-	rospy.loginfo('Server started')
+	#rospy.loginfo('Server started')
 
         # Initializations
         self.normal_counter = 1
@@ -106,7 +106,7 @@ class Normal(smach.State):
 
 	    #Go to the generated coords
 	    self.act_c.send_goal(self.coords)
-	    rospy.loginfo('Goal: ' + str(self.coords.target_pose.pose.position.x) + ', ' + str(self.coords.target_pose.pose.position.y))
+	    print('Goal: ' + str(self.coords.target_pose.pose.position.x) + ', ' + str(self.coords.target_pose.pose.position.y))
 
 	    # Waits for the server to finish performing the action.
 	    self.act_c.wait_for_result()
@@ -141,7 +141,7 @@ class Normal(smach.State):
 
 		    #Go to the generated coords
 	    	    self.act_c.send_goal(self.coords)
-	    	    rospy.loginfo('Goal: ' + str(self.coords.target_pose.pose.position.x) + ', ' + str(self.coords.target_pose.pose.position.y))
+	    	    print('Goal: ' + str(self.coords.target_pose.pose.position.x) + ', ' + str(self.coords.target_pose.pose.position.y))
 
 	    	    # Waits for the server to finish performing the action.
 	    	    self.act_c.wait_for_result()
@@ -185,9 +185,9 @@ class Sleep(smach.State):
 	#Actions
 	self.act_c = actionlib.SimpleActionClient('/move_goal', motion_plan.msg.PlanningAction)
 
-	rospy.loginfo('Waiting for action server to start')
+	#rospy.loginfo('Waiting for action server to start')
 	self.act_c.wait_for_server()
-	rospy.loginfo('Server started')
+	#rospy.loginfo('Server started')
 
 	#Initializations
 	self.coords = motion_plan.msg.PlanningGoal()  
@@ -210,7 +210,7 @@ class Sleep(smach.State):
         # Go to sleep position
 	print("going to sleep")
 	self.act_c.send_goal(self.coords)
-	rospy.loginfo('Goal: ' + str(self.coords.target_pose.pose.position.x) + ', ' + str(self.coords.target_pose.pose.position.y))
+	print('Sleep: ' + str(self.coords.target_pose.pose.position.x) + ', ' + str(self.coords.target_pose.pose.position.y))
 
 	# Waits for the server to finish performing the action.
 	self.act_c.wait_for_result()

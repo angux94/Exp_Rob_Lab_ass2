@@ -26,6 +26,8 @@ VERBOSE = False
 cb_msg = None
 
 def wait_time(seconds):
+	""" Function to wait the specified seconds
+	"""
 	start_time = time.time()
 	my_time = 0
 	while (my_time < seconds):
@@ -37,7 +39,10 @@ class image_feature:
 	global cb_msg
         '''Initialize ros publisher, ros subscriber'''
         rospy.init_node('camera_ball', anonymous=True)
-     # topic where we publish
+	
+	self.wait_time = rospy.get_param('~wait_time',5)
+
+        # topic where we publish
         self.image_pub = rospy.Publisher("/robot/output/image_raw/compressed",
                                          CompressedImage, queue_size=1)
         self.vel_pub = rospy.Publisher("/robot/cmd_vel",
@@ -71,16 +76,17 @@ class image_feature:
 	#### direct conversion to CV2 ####
 	np_arr = np.fromstring(ros_data.data, np.uint8)
 	image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # OpenCV >= 3.0:
-
+	
+	# Range of green to search
 	greenLower = (50, 50, 20)
 	greenUpper = (70, 255, 255)
 
+	# Image processing to reject posible noisy particles
 	blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
 	hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 	mask = cv2.inRange(hsv, greenLower, greenUpper)
 	mask = cv2.erode(mask, None, iterations=2)
 	mask = cv2.dilate(mask, None, iterations=2)
-	#cv2.imshow('mask', mask)
 	cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
 	                        cv2.CHAIN_APPROX_SIMPLE)
 	cnts = imutils.grab_contours(cnts)
@@ -107,19 +113,23 @@ class image_feature:
 			vel.angular.z = -0.002*(center[0]-400)
 			vel.linear.x = -0.01*(radius-100)
 			self.vel_pub.publish(vel)
-			#print distance when close enough
-			if abs(radius-100) < 10:
-				rospy.loginfo('dist: ' + str(radius-100))
-			#check if we arrived to the point
+			
+			#Only perform this, if we haven't arrived to the ball yet
 			if(self.arrive == False):
-				if(abs(radius-100) < 1):
+				# Chech if the radius difference is small enough to consider we arrived
+				rad_check = 1
+				if(abs(radius-100) < rad_check):
+					#Publish we arrived to the ball
+					print("Reached the ball")
 					self.arrived_pub.publish(True)
 					self.arrive = True
-
+					
+					#Control the camera to turn the neck
 					cam_angle = Float64()
 					angle = Float64()
 					angle = 0.0
-
+					
+					#Move to one side 45 degrees (pi/4 = 0.78)
 					while angle < 0.78:
 						angle = angle + 0.1
 						#rospy.loginfo('angle: ' + str(angle))
@@ -128,10 +138,11 @@ class image_feature:
 						cv2.imshow('window', image_np)
 						cv2.waitKey(2)
 						time.sleep(1)
-				
-					wait_time(5)
+					
+					#Wait some time
+					wait_time(self.wait_time)
 
-
+					#Move to the other side 45 degrees
 					while angle > -0.78:
 						angle = angle - 0.1
 						#rospy.loginfo('angle: ' + str(angle))
@@ -141,8 +152,10 @@ class image_feature:
 						cv2.waitKey(2)
 						time.sleep(1)
 
-					wait_time(5)
+					#Wait some time
+					wait_time(self.wait_time)
 
+					#Come back to centered position
 					while angle < -0.1:
 						angle = angle + 0.1
 						#rospy.loginfo('angle: ' + str(angle))
@@ -152,8 +165,9 @@ class image_feature:
 						cv2.waitKey(2)
 						time.sleep(1)
 
+					#Turn off arrived flag to search for the ball again
 					self.arrived_pub.publish(False)
-					rospy.loginfo('Checked around!')
+					print('Checked around!')
 				
 
 				
@@ -167,11 +181,13 @@ class image_feature:
 		    vel = Twist()
 		    vel.angular.z = 0.5
 		    self.vel_pub.publish(vel)
+		    # Reset the state to not arrived
 		    self.arrive = False
 
 		cv2.imshow('window', image_np)
 		cv2.waitKey(2)
-
+	
+	# If 'stop' command, start searching for the ball for some time
 	elif cb_msg == 'stop':
 		start_time = time.time()
 		my_time = 0
