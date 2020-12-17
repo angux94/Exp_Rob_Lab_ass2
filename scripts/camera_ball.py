@@ -121,7 +121,7 @@ class image_feature:
 			#Only perform this, if we haven't arrived to the ball yet
 			if(self.arrive == False):
 				# Chech if the radius difference is small enough to consider we arrived
-				rad_check = 1
+				rad_check = 2
 				if(abs(radius-100) < rad_check):
 					#Publish we arrived to the ball
 					print("Reached the ball")
