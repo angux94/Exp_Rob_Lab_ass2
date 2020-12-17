@@ -69,7 +69,11 @@ class image_feature:
 	global cb_msg
 	
 	'''Callback function of subscribed topic. 
-	Here images get converted and features detected'''
+	Here images get converted and features detected
+	
+	Once the camera detects the ball, starts tracking it and when the robot arrives to the ball, turns it's neck to check its surroundings
+
+	'''
 	if VERBOSE:
 	        print ('received image of type: "%s"' % ros_data.format)
 

@@ -23,10 +23,9 @@ cb_msg = None
 def coord_select():
 	"""Function to display the grid and select the destination point
 
-	Returns
-	---------
-	xy
-		X and Y coordinates of the point selected
+	Returns:
+		xy
+			X and Y coordinates of the point selected
 	"""
 
 	# 8x8 grid for selecting the destination
@@ -56,18 +55,17 @@ def main():
 	After receiving the "play" command, displays a 16x16 grid as the environment to 
         select a play destination to where the ball will go. Publishes the selected coordinates
 	
-	Subscribers
-	----------
-	sub: subscriber (std_msgs.String) to /gesture_request
-		reads when the play command arrives
+	Subscribers:
+		sub: subscriber (std_msgs.String) to /gesture_request
+			reads when the play command arrives
 
-	Actions
-	----------
-	act_c: Client for action /reaching_goal
-		calls the action to move the ball to the specified coordinates
+	Actions:
+		act_c: Client for action /reaching_goal
+			calls the action to move the ball to the specified coordinates
 	
-		goal: geometry_msgs.PoseStamped
-		result: geometry_msgs.Pose
+			goal: geometry_msgs.PoseStamped
+
+			result: geometry_msgs.Pose
 	"""
 	rospy.init_node('play_coords')
 

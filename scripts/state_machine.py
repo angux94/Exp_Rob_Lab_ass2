@@ -22,32 +22,28 @@ class Normal(smach.State):
     If "play" command is received, ball appears and robot goes to PLAY state.
     If no command is received, eventually goes to SLEEP.
 
-    State Machine
-    ----------
-    NORMAL('play') -> PLAY (if play command received)
-    NORMAL('sleep') -> SLEEP (if no command received)
+    State Machine:
+    	NORMAL('play') -> PLAY (if play command received)
+    	NORMAL('sleep') -> SLEEP (if no command received)
 
-    Parameters
-    ----------
-    normal_times: (int) Number of random walks to do
+    Parameters:
+    	normal_times: (int) Number of random walks to do
 
-    Attributes
-    ----------
-    normal_counter: (int)
-    coords: (motion_plan.msg.PlanningGoal)
+    Attributes:
+    	normal_counter: (int)
+    	coords: (motion_plan.msg.PlanningGoal)
 
-    Subscribers
-    ----------
-    sub_command: subscriber (std_msgs.String) to /command
-	subscribe to get the play command to enter the PLAY state
+    Subscribers:
+    	sub_command: subscriber (std_msgs.String) to /command
+		subscribe to get the play command to enter the PLAY state
 
-    Actions
-    ----------
-    act_c: Client for action /move_goal
-	calls the action to move the robot to the specified coordinates
+    Actions:
+    	act_c: Client for action /move_goal
+		calls the action to move the robot to the specified coordinates
 	
-	goal: geometry_msgs.PoseStamped
-	result: geometry_msgs.Pose
+		goal: geometry_msgs.PoseStamped
+
+		result: geometry_msgs.Pose
 	
     """
     def __init__(self):
@@ -156,27 +152,24 @@ class Sleep(smach.State):
 
     The robot goes to the sleep coordinate, stays there for a while, then wakes up and goes into NORMAL state
 
-    State Machine
-    ----------
-    SLEEP('wait') -> NORMAL (after time passes)
+    State Machine:
+    	SLEEP('wait') -> NORMAL (after time passes)
 
-    Parameters
-    ----------
-    sleep_x: (double) Sleep x coordinate (-8,8)
-    sleep_y: (double) Sleep y coordinate (-8,8)
-    time_sleep: (int) Sleeping time (1,10)
+    Parameters:
+    	sleep_x: (double) Sleep x coordinate (-8,8)
+    	sleep_y: (double) Sleep y coordinate (-8,8)
+    	time_sleep: (int) Sleeping time (1,10)
 
-    Attributes
-    ----------
-    coords: (motion_plan.msg.PlanningGoal)
+    Attributes:
+    	coords: (motion_plan.msg.PlanningGoal)
 
-    Actions
-    ----------
-    act_c: Client for action /move_goal
-	calls the action to move the robot to the specified coordinates
+    Actions:
+    	act_c: Client for action /move_goal
+		calls the action to move the robot to the specified coordinates
 
-	goal: geometry_msgs.PoseStamped
-	result: geometry_msgs.Pose
+		goal: geometry_msgs.PoseStamped
+
+		result: geometry_msgs.Pose
 
     """
     def __init__(self):
@@ -235,25 +228,21 @@ class Play(smach.State):
     command is received and the coordinates are given. Ball disapears once the command 'stop'
     arrives, which sends the ball out of the environment.
 
-    State Machine
-    ----------
-    PLAY('stop') -> NORMAL (if stop command is received)
+    State Machine:
+    	PLAY('stop') -> NORMAL (if stop command is received)
 
-    Attributes
-    ----------
-    play_counter: int
+    Attributes:
+    	play_counter: int
 
-    Publishers
-    ----------
-    pub_command: publisher (std_msgs.String) to /gesture_request
-	publishes the request to enter ball desired coordinates
+    Publishers:
+    	pub_command: publisher (std_msgs.String) to /gesture_request
+		publishes the request to enter ball desired coordinates
     
-    Subscribers
-    ----------
-    sub_flag: subscriber (std_msgs.Bool) to /arrived_play
-	checks if the robot reached the ball
-    sub_command: subscriber (std_msgs.String) to /command
-	subscribe to get the stop command to exit the PLAY state
+    Subscribers:
+    	sub_flag: subscriber (std_msgs.Bool) to /arrived_play
+		checks if the robot reached the ball
+    	sub_command: subscriber (std_msgs.String) to /command
+		subscribe to get the stop command to exit the PLAY state
     """
     def __init__(self):
         smach.State.__init__(self, outcomes=['stop'])
@@ -318,18 +307,17 @@ def main():
 
     Creates the state machine, add states and link their outputs.
 
-    States
-    ----------
-    NORMAL | PLAY | SLEEP
+    States:
+    	NORMAL | PLAY | SLEEP
     
-    Transitions
-    ----------
-    NORMAL -> PLAY
-    NORMAL -> SLEEP
+    Transitions:
+    	NORMAL -> PLAY
+    	
+	NORMAL -> SLEEP
 
-    PLAY -> NORMAL
+    	PLAY -> NORMAL
 
-    SLEEP -> NORMAL
+    	SLEEP -> NORMAL
 
     """
     global sm_command, sm_flag

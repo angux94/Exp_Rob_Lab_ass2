@@ -151,11 +151,10 @@ def planning(goal):
 
     Gets the xy coordinates and changes through the states to take the robot towards the goal.
 
-    States
-    ----------
-    0: The robot turns to align itself with the desired point
-    1: Once it's aligned, the robot moves forward, checking that the yaw error remains into acceptable ranges
-    2: Robot arrived, stop moving
+    States:
+    	0: The robot turns to align itself with the desired point
+    	1: Once it's aligned, the robot moves forward, checking that the yaw error remains into acceptable ranges
+    	2: Robot arrived, stop moving
 
     """
 
@@ -209,21 +208,19 @@ def main():
 
     Stablishes the publishers, subscribers and actions used in the node
 
-    Publishers
-    ----------
-    pub: publishes (geometry_msgs.Twist) to /robot/cmd_vel
-	publishes to control the robot velocities
+    Publishers:
+    	pub: publishes (geometry_msgs.Twist) to /robot/cmd_vel
+		publishes to control the robot velocities
 
-    Subscribers
-    ----------
-    sub_odom: subscribes (nav_msgs.Odometry) to /robot/odom
-	subscribes to check the robot position in the environment
+    Subscribers:
+    	sub_odom: subscribes (nav_msgs.Odometry) to /robot/odom
+		subscribes to check the robot position in the environment
 
-    Actions
-    ----------
-    act_s: server of action /move_goal
-	goal: geometry_msgs.PoseStamped
-	result: geometry_msgs.Pose
+    Actions:
+    	act_s: server of action /move_goal
+		goal: geometry_msgs.PoseStamped
+
+		result: geometry_msgs.Pose
     """
     global pub, active_, act_s
     rospy.init_node('move_robot_server')

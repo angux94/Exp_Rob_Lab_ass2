@@ -116,10 +116,9 @@ def planning(goal):
 
     Gets the desired xy coordinates and changes through the states to take the ball towards the goal.
 
-    States
-    ----------
-    0: The ball is going towards the goal
-    1: Ball arrived, stops moving
+    States:
+    	0: The ball is going towards the goal
+    	1: Ball arrived, stops moving
 
     """
     global state_, desired_position_
@@ -167,27 +166,24 @@ def main():
 
     Stablishes the publishers, subscribers and actions used in the node
 
-    Publishers
-    ----------
-    pub: publishes (geometry_msgs.Twist) to cmd_vel of the ball (using namespace from the launch file)
-	publishes to control the ball velocities
-    pubz: publishes (gazebo_msgs.LinkState)to /gazebo/set_link_state
-	(gazebo_msgs.LinkState sets pose and twist of a limb):
-		string link_name (name of the link)
-		grometry_msgs.Pose Pose (desired pose on the ref frame)
-		grometry_msgs.Twist Twist (desired twist on the ref frame)
-		string reference_frame (set pose/twist relative to the specified frame)
+    Publishers:
+    	pub: publishes (geometry_msgs.Twist) to cmd_vel of the ball (using namespace from the launch file)
+		publishes to control the ball velocities
+    	pubz: publishes (gazebo_msgs.LinkState)to /gazebo/set_link_state
+		(gazebo_msgs.LinkState sets pose and twist of a limb):
+			string link_name (name of the link)
+			grometry_msgs.Pose Pose (desired pose on the ref frame)
+			grometry_msgs.Twist Twist (desired twist on the ref frame)
+			string reference_frame (set pose/twist relative to the specified frame)
 
-    Subscribers
-    ----------
-    sub_odom: subscribes (nav_msgs.Odometry) to odom of the ball (using namespace from the launch file)
-	subscribes to check the ball position in the environment
+    Subscribers:
+    	sub_odom: subscribes (nav_msgs.Odometry) to odom of the ball (using namespace from the launch file)
+		subscribes to check the ball position in the environment
 
-    Actions
-    ----------
-    act_s: server of action /reaching_goal
-	goal: geometry_msgs.PoseStamped
-	result: geometry_msgs.Pose
+    Actions:
+    	act_s: server of action /reaching_goal
+		goal: geometry_msgs.PoseStamped
+		result: geometry_msgs.Pose
     """
     global pub, active_, act_s, pubz
     rospy.init_node('go_to_point')

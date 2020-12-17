@@ -20,9 +20,8 @@ def main():
 	'play' will ask for coordinates in order to make the ball appear in the environment
 	'stop' will make the ball dissapear of the environment
 
-	Publishers
-	----------
-	pub: publishes (std_msgs.String) to /command 
+	Publishers:
+		pub: publishes (std_msgs.String) to /command 
 
 	"""
 	rospy.init_node('command_request')
