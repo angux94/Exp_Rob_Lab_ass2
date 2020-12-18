@@ -92,6 +92,12 @@ All the executable files are in /scripts folder which are the .py files for each
 - The documentation can be found in the folder : /docs
 In order to open it on firefox, open a terminal inside /docs folder and run: 
   - firefox _build/html/index.html
+  
+- The robot structure files can be found inside /urdf folder under the ex3_arm.xacro and ex3_arm.gazebo name files, which are the ones that define the structure of the robot, and its controlled joint.
+
+- For the control file is can be found inside /config as ex3_motors.yaml.
+
+- The /world folder contains the world definition, this file hasn't been modified after its delivery.
 
 Intstallation and Running Procedure
 -----------------
