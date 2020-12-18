@@ -39,10 +39,24 @@ The robot will switch between states depending on the commands received.
 Messages
 ----------
 
-The message types used in the project were:
+The message types used in the project are:
   - geometry_msgs Point: for x,y coordinates of the robot.
+  - geometry_msgs Pose: to get the pose of the ball and the robot
+  - geometry_msgs Twist: for controlling ball and robot velocities.
+  - navigation_msgs Odometry: to get the odometry data of the robot and ball.
+  - sensor_msgs CompressedImage: to get and show the image using opencv.
+  - std_msgs Float: to control the angle of the camera on the robot.
   - std_msgs String: for strings.
   - std_msgs Bool: for booleans.
+  
+Actions
+-----------
+
+The action used are located in the /action folder, it has the shape:
+  - goal: geometry_msgs PoseStamped 
+  - response: geomterty_msgs Pose 
+  
+This action message is used to move the robot on the NORMAL and SLEEP states, and also to move the ball on the PLAY state. Both uses the same message but are different actions as shown on the architecture.
   
 Parameters
 -------------
