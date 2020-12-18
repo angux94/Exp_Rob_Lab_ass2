@@ -143,7 +143,20 @@
 <dl class="class">
 <dt id="camera_ball.image_feature">
 <em class="property">class </em><code class="descclassname">camera_ball.</code><code class="descname">image_feature</code><a class="headerlink" href="#camera_ball.image_feature" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Initialize ros publisher, ros subscriber</p>
+<dl class="docutils">
+<dt>Publishers:</dt>
+<dd><p class="first">image_pub: publishes (sensor_msgs.CompressedImage) to /robot/output/image_raw/compressed</p>
+<p>vel_pub: publishes (grometry_msgs.Twist) to /robot/cmd_vel</p>
+<p>cam_ctrl_pub: publishes (std_msgs.Float64) to /robot/joint1_position_controller/command</p>
+<p class="last">arrived_pub: publishes (std_msgs.Bool) to /arrived_play</p>
+</dd>
+<dt>Subscribers:</dt>
+<dd><p class="first">sub: subscribes (std_msgs.String) to /gesture_request</p>
+<p class="last">subscriber: subscribes to (sensor_msgs.CompressedImage) /robot/camera1/image_raw/compressed</p>
+</dd>
+</dl>
+<dl class="method">
 <dt id="camera_ball.image_feature.callback">
 <code class="descname">callback</code><span class="sig-paren">(</span><em>ros_data</em><span class="sig-paren">)</span><a class="headerlink" href="#camera_ball.image_feature.callback" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
