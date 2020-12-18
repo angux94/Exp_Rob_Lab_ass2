@@ -37,7 +37,22 @@ class image_feature:
 
     def __init__(self):
 	global cb_msg
-        '''Initialize ros publisher, ros subscriber'''
+        '''Initialize ros publisher, ros subscriber
+	
+	Publishers:
+		image_pub: publishes (sensor_msgs.CompressedImage) to /robot/output/image_raw/compressed
+
+		vel_pub: publishes (grometry_msgs.Twist) to /robot/cmd_vel
+
+		cam_ctrl_pub: publishes (std_msgs.Float64) to /robot/joint1_position_controller/command
+
+		arrived_pub: publishes (std_msgs.Bool) to /arrived_play
+
+	Subscribers:
+		sub: subscribes (std_msgs.String) to /gesture_request
+
+		subscriber: subscribes to (sensor_msgs.CompressedImage) /robot/camera1/image_raw/compressed
+	'''
         rospy.init_node('camera_ball', anonymous=True)
 	
 	self.wait_time = rospy.get_param('~wait_time',5)
