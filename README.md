@@ -17,6 +17,7 @@ Software Architecture and States Diagrams
 ----------------------------------------
 
 For the software architecture:
+
 ![](https://github.com/angux94/Exp_Rob_Lab_ass2/blob/master/Assignment_2_architecture.png)
 
 As seen on the image, the architecture of the program has 4 nodes.
@@ -26,6 +27,7 @@ As seen on the image, the architecture of the program has 4 nodes.
   - sm_assignment: The state machine of the system which control what the robot does.
   
 For the State Machine Diagram:
+
 ![](https://github.com/angux94/Exp_Rob_Lab_ass2/blob/master/State_machine_ass2.png)
 
 The State Machine has 3 states:
@@ -59,17 +61,17 @@ The launch file is gazebo_world.launch located inside /launch folder. The create
 - Nodes:
 All the executable files are in /scripts folder which are the .py files for each node.
 
-  -camera_ball: Node in charge of controlling the camera installed on the robot. Once it enters in the play state, it starts searching on the image for a green ball, after if founds it, starts approaching to it and when the robot arrives to the ball, starts "checking its surroundings"
+  - camera_ball: Node in charge of controlling the camera installed on the robot. Once it enters in the play state, it starts searching on the image for a green ball, after if founds it, starts approaching to it and when the robot arrives to the ball, starts "checking its surroundings"
   
-  -command_request: Node in charge of reading the inputs of the user, "play" or "stop" are the valid commands.
+  - command_request: Node in charge of reading the inputs of the user, "play" or "stop" are the valid commands.
   
-  -go_to_point_ball: Node in charge of moving the ball to the specified coordinates, it's the server of the /reacihng_goal action.
+  - go_to_point_ball: Node in charge of moving the ball to the specified coordinates, it's the server of the /reacihng_goal action.
   
-  -move_robot_server: Node in charge of moving the robot to the random coordinates on the environment while in NORMAL state of to go to sleep on the SLEEP state. It's the server of the /move_goal action.
+  - move_robot_server: Node in charge of moving the robot to the random coordinates on the environment while in NORMAL state of to go to sleep on the SLEEP state. It's the server of the /move_goal action.
   
-  -play_coords: Node in charge of displaying the grid so the user can select the coordinates to which the ball will move. It's the client of /reaching_goal action.
+  - play_coords: Node in charge of displaying the grid so the user can select the coordinates to which the ball will move. It's the client of /reaching_goal action.
   
-  -state_machine: Node in charge of managing the state machine of the program. Will switch through states and maganes the main behavoir of the robot. It's also the client of /move_goal acton.
+  - state_machine: Node in charge of managing the state machine of the program. Will switch through states and maganes the main behavoir of the robot. It's also the client of /move_goal acton.
 
 
 - The documentation can be found in the folder : /docs
