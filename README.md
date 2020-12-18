@@ -20,11 +20,7 @@ For the software architecture:
 
 ![](https://github.com/angux94/Exp_Rob_Lab_ass2/blob/master/Assignment_2_architecture.png)
 
-As seen on the image, the architecture of the program has 4 nodes.
-  - command_recog: Waits for the user to input the "play" command.
-  - gesture_recog: Once the play command has been introduced, displays a 1000x1000 grid to select the play location.
-  - movement_control: Controls the robot movement and tells us whe it arrives to the destination.
-  - sm_assignment: The state machine of the system which control what the robot does.
+The architecture shows the working principle of the program. First the "command_request" node will be waiting for the user to input a command, in parallel the program and "state_machine" node will be running on NORMAL state witing also for said command. "state_machine" node is the brain of the program, on NORMAL or SLEEP state, will communicate with "move_robot_server" and with the robot model to move it to the random locations or sleep location respectively. Once it enters into the PLAY state (after 'play' command is received) the state machine will make use of "camera_ball" and "play_coords" nodes, to move the ball to the desired position and to start controlling the robot through the camera input. It will remain on PLAY state until at some point the 'stop' command is input, which will switch to NORMAL state once again.
   
 For the State Machine Diagram:
 
@@ -34,6 +30,11 @@ The State Machine has 3 states:
   - NORMAL: Main state in which the robot walks randomly until the "play" command arrives and goes to PLAY state, if not, goes to SLEEP state.
   - SLEEP: The robot goes to the sleep position and rests for a while, afterwards wakes up and goes to the NORMAL state.
   - PLAY: The robot plays until the "stop" command arrives locating the ball with the camera. When the playing stops goes to NORMAL state again.
+  
+The robot will switch between states depending on the commands received.
+  - 'play' will switch from NORMAL to PLAY
+  - 'stop' will switch from PLAY to NORMAL
+  - 'wait' (not input by the user) will switch from NORMAL to SLEEP, and recursively from SLEEP to NORMAL
   
 Messages
 ----------
@@ -75,14 +76,16 @@ All the executable files are in /scripts folder which are the .py files for each
 
 
 - The documentation can be found in the folder : /docs
-In order to open it on firefox, open a terminal inside /docs folder and run: firefox _build/html/index.html
+In order to open it on firefox, open a terminal inside /docs folder and run: 
+  - firefox _build/html/index.html
 
 Intstallation and Running Procedure
 -----------------
 
 Download the project, or clone the repository in the desired folder on your computer.
 
-Use: roslaunch exp_assignment2 gazebo_world.launch
+Use: 
+- roslaunch exp_assignment2 gazebo_world.launch
 
 It will launch all the required nodes and the program will be fully functional. parameters can be specified on the same command or inside the .launch file located on the /launch folder.
 
